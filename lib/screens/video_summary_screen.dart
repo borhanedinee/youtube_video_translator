@@ -62,13 +62,23 @@ class VideoSummarScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Original Language (English)',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54,
-                              ),
+                            Row(
+                              spacing: 8,
+                              children: [
+                                Icon(
+                                  Icons.translate,
+                                  color: Colors.black54,
+                                  size: 16,
+                                ),
+                                Text(
+                                  'Original Language (${currentUser!.toLang.toUpperCase()})',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -83,13 +93,23 @@ class VideoSummarScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Text(
-                              'In Your Language (French)',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54,
-                              ),
+                            Row(
+                              spacing: 8,
+                              children: [
+                                Icon(
+                                  Icons.public,
+                                  color: Colors.black54,
+                                  size: 16,
+                                ),
+                                Text(
+                                  'In Your Language (${currentUser!.fromLang.toUpperCase()})',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -130,7 +150,7 @@ class VideoSummarScreen extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black87,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),

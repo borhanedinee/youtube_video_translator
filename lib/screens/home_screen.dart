@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_downloader/main.dart';
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_youtubeController.text.isNotEmpty &&
         isYouTubeVideoLink(_youtubeController.text)) {
       final videoID = getYouTubeVideoId(_youtubeController.text);
-      final langCode = 'en';
+      final langCode = getLanguageCode(currentUser!.toLang.toLowerCase());
       await processVideoController.processVideo(videoID, langCode);
       if (processVideoController.transcriptionResult == null ||
           processVideoController.transcriptionResult == '') {
@@ -45,10 +46,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       final transcript = processVideoController.transcriptionResult;
+      final fromLanguage = currentUser!.fromLang;
+      final toLanguage = currentUser!.toLang;
+      final level = currentUser!.level;
       await complexWordsDetector.detectComplexWordsInText(
         transcript!,
-        fromLanguage: 'english',
-        toLanguage: 'arabic',
+        fromLanguage: fromLanguage,
+        toLanguage: toLanguage,
+        level: level,
       );
       processVideoController.setInitialStateOfLoaders();
       if (complexWordsDetector.detectedWordsResponseModel == null) {
@@ -78,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
+            width: constraints.maxWidth,
             height:
                 constraints
                     .maxHeight, // Use the full height provided by Scaffold
@@ -100,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Video Translator',
+                                    'Welcome ${currentUser!.username.capitalizeFirst}, \nHappy Learning 😊',
                                     style: GoogleFonts.poppins(
                                       fontSize: 28,
                                       fontWeight: FontWeight.w700,
@@ -141,6 +147,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: TextField(
                                       controller: _youtubeController,
                                       decoration: InputDecoration(
+                                        suffixIcon: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 12,
+                                          ),
+                                          child: Icon(
+                                            FontAwesomeIcons.youtube,
+                                            color: Colors.red,
+                                            size: 30,
+                                          ),
+                                        ),
                                         hintText: 'Enter YouTube video link',
                                         hintStyle: GoogleFonts.poppins(
                                           fontSize: 16,
@@ -164,7 +180,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 24),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'NOTE: Please make sure the video has a speech with the same language that you want to learn ( ${currentUser!.toLang.toUpperCase()} ).',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
                                   Center(
                                     child: ElevatedButton.icon(
                                       onPressed: _onAnalyzePressed,

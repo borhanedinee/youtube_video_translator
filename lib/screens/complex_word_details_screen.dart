@@ -240,52 +240,91 @@ class ComplexWordDetailsScreen extends StatelessWidget {
         children: [
           SizedBox(
             width: size.width,
-            child: ElevatedButton(
-              onPressed: () {
-                if (controller.isLastWord()) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => VideoSummarScreen(),
+            child: Row(
+              children: [
+                controller.isFirstWord()
+                    ? SizedBox()
+                    : Expanded(
+                      flex: 1,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (!controller.isFirstWord()) {
+                            controller.previousWord();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black87,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                            vertical: 16.0,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          elevation: 4,
+                        ),
+                        label: Text(
+                          'Previous Word',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        iconAlignment: IconAlignment.start,
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  );
-                  controller.currentIndex = 0;
-                } else {
-                  controller.nextWord();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black87,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 12.0,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                elevation: 4,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    controller.isLastWord()
-                        ? 'Show Video Context'
-                        : 'Next Word',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                SizedBox(width: controller.isFirstWord() ? 0 : 12),
+                Expanded(
+                  flex: 1,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (controller.isLastWord()) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => VideoSummarScreen(),
+                          ),
+                        );
+                        controller.currentIndex = 0;
+                      } else {
+                        controller.nextWord();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black87,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 16.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 4,
+                    ),
+                    iconAlignment: IconAlignment.end,
+                    icon: const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
                       color: Colors.white,
                     ),
+                    label: Text(
+                      controller.isLastWord() ? 'Show Context' : 'Next Word',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 8),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),

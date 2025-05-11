@@ -21,8 +21,17 @@ class ComplexWordsDetector extends GetxController {
         detectedWordsResponseModel!.complexWordsWithExamples.length - 1;
   }
 
+  bool isFirstWord() {
+    return currentIndex == 0;
+  }
+
   nextWord() {
     currentIndex++;
+    update();
+  }
+
+  previousWord() {
+    currentIndex--;
     update();
   }
 
@@ -32,7 +41,7 @@ class ComplexWordsDetector extends GetxController {
 
   Future<void> detectComplexWordsInText(
     String transcript, {
-    String level = 'B1',
+    required String level,
     required String fromLanguage,
     required String toLanguage,
   }) async {
@@ -122,6 +131,9 @@ class ComplexWordsDetector extends GetxController {
       Get.showSnackbar(
         GetSnackBar(message: 'Something went wrong requesting deep seek $e'),
       );
+      isInitialState = true;
+      isPrompting = false;
+      update();
     } finally {
       isInitialState = true;
       isPrompting = false;

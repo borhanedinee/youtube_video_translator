@@ -79,6 +79,7 @@ class DownloadYoutubeVideoService extends GetxController {
 
       update();
     } catch (e, stack) {
+      setInitialStateOfLoaders();
       print('❌ Error: $e');
       print(stack);
     }

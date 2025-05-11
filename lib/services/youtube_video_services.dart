@@ -1,7 +1,7 @@
 String getYouTubeVideoId(String url) {
-  // Regular expression to match YouTube video ID
+  // Enhanced regular expression to match YouTube video ID across various formats
   final RegExp regExp = RegExp(
-    r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})',
+    r'(?:youtube(?:-nocookie)?\.com/(?:[^/\n\s]+/\S+/|(?:v|e(?:mbed)?|watch)/?[^/\n\s]*[?&]?(?:v=)?)|youtu\.be/)([a-zA-Z0-9_-]{11})',
     caseSensitive: false,
   );
 
@@ -14,8 +14,21 @@ String getYouTubeVideoId(String url) {
 
 bool isYouTubeVideoLink(String link) {
   final youtubePatterns = [
-    r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+',
-    r'^https?://youtu\.be/[\w-]+',
+    r'^https?://(?:www\.)?youtube(?:-nocookie)?\.com/(?:watch\?v=|embed/|v/|shorts/)?[a-zA-Z0-9_-]{11}(?:\?[^"\s]*)?$',
+    r'^https?://youtu\.be/[a-zA-Z0-9_-]{11}(?:\?[^"\s]*)?$',
   ];
   return youtubePatterns.any((pattern) => RegExp(pattern).hasMatch(link));
+}
+
+String getLanguageCode(String language) {
+  switch (language.toLowerCase()) {
+    case 'english':
+      return 'en';
+    case 'spanish':
+      return 'es';
+    case 'arabic':
+      return 'ar';
+    default:
+      throw ArgumentError('Unsupported language: $language');
+  }
 }
