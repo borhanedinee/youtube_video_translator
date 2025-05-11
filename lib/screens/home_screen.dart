@@ -3,7 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_downloader/main.dart';
-import 'package:youtube_downloader/pages/complex_word_details_screen.dart';
+import 'package:youtube_downloader/screens/complex_word_details_screen.dart';
 import 'package:youtube_downloader/services/complex_words_detector.dart';
 import 'package:youtube_downloader/services/download_youtube_video_service.dart';
 import 'package:youtube_downloader/services/youtube_video_services.dart';
@@ -62,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context) => const ComplexWordDetailsScreen(),
         ),
       );
+      _youtubeController.clear();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -244,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         const SizedBox(height: 12),
 
                                         _buildStatusRow(
-                                          'Detecting Complex Words Based on your Level Video',
+                                          'Detecting Complex Words Based on your Level',
                                           Icons.spellcheck,
                                           controller.isPrompting,
                                           controller.isInitialState,

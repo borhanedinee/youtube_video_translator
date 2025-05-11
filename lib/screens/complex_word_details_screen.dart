@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_downloader/main.dart';
 import 'package:youtube_downloader/models/response_model.dart';
+import 'package:youtube_downloader/screens/video_summary_screen.dart';
 import 'package:youtube_downloader/services/complex_words_detector.dart';
 import 'package:youtube_downloader/themes/app_themes.dart';
 
@@ -12,56 +13,58 @@ class ComplexWordDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        child: SingleChildScrollView(
-          child: Container(
-            decoration: AppThemes.backgroundGradient,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 24.0,
-                ),
-                child: GetBuilder<ComplexWordsDetector>(
-                  builder: (controller) {
-                    final ComplexWord word = controller.getCurrentWord();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          word.word,
-                          style: GoogleFonts.poppins(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          word.wordTranslated, // Assuming this is the translation in the target language
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildWordTypeCard(word, context),
-                        const SizedBox(height: 16),
-                        _buildDefinitionCard(word, context),
-                        const SizedBox(height: 16),
-                        _buildExamplesCard(word.examples, context),
-                        const SizedBox(height: 32),
+      body: LayoutBuilder(
+        builder:
+            (context, constraints) => Container(
+              height: constraints.maxHeight,
+              decoration: AppThemes.backgroundGradient,
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 24.0,
+                    ),
+                    child: GetBuilder<ComplexWordsDetector>(
+                      builder: (controller) {
+                        final ComplexWord word = controller.getCurrentWord();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              word.word,
+                              style: GoogleFonts.poppins(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              word.wordTranslated, // Assuming this is the translation in the target language
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildWordTypeCard(word, context),
+                            const SizedBox(height: 16),
+                            _buildDefinitionCard(word, context),
+                            const SizedBox(height: 16),
+                            _buildExamplesCard(word.examples, context),
+                            const SizedBox(height: 32),
 
-                        _buildNavigationButton(controller, context),
-                      ],
-                    );
-                  },
+                            _buildNavigationButton(controller, context),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }
@@ -240,13 +243,12 @@ class ComplexWordDetailsScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 if (controller.isLastWord()) {
-                  Get.snackbar(
-                    'Navigation',
-                    'Navigating to Context Screen (to be implemented)',
-                    backgroundColor: AppThemes.primaryColor,
-                    colorText: Colors.white,
-                    snackPosition: SnackPosition.TOP,
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => VideoSummarScreen(),
+                    ),
                   );
+                  controller.currentIndex = 0;
                 } else {
                   controller.nextWord();
                 }

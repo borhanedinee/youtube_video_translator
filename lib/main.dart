@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:youtube_downloader/pages/home_screen.dart';
+import 'package:youtube_downloader/screens/home_screen.dart';
 import 'package:youtube_downloader/services/complex_words_detector.dart';
 import 'package:youtube_downloader/services/download_youtube_video_service.dart';
 
