@@ -46,6 +46,8 @@ class ComplexWordsDetector extends GetxController {
     required String toLanguage,
   }) async {
     try {
+      print('borhan from: $fromLanguage');
+      print('borhan to: $toLanguage');
       isInitialState = false;
       isPrompting = true;
       update();
@@ -65,17 +67,17 @@ class ComplexWordsDetector extends GetxController {
     2. Return the result in the following format:
 
     {
-      "contextOfText": "<A short summary of what the transcript is about>",
-      "contextOfTextTranslated": "<translation of contextOfText in the to language>",
+      "contextOfText": "<A short summary of what the transcript is about in $toLanguage>",
+      "contextOfTextTranslated": "<translation of contextOfText in the to language in $fromLanguage>",
       "complexWordsWithExamples": [
         {
           "word": "exampleComplexWord",
-          "wordTranslated": "<translate the word in the to Language>",
-          "wordExplanation": "<give trhe word type , eg noun verb ect , and imple explanation>",
+          "wordTranslated": "<translate the word in the  $fromLanguage>",
+          "wordExplanation": "<give trhe word type , eg noun verb ect , and simple explanation in $toLanguage>",
           "examples": [
             {
-              "sentence": "An example sentence using the word.",
-              "translation": "La traduction de la phrase d'exemple."
+              "sentence": "An example sentence using the word. in $toLanguage",
+              "translation": "La traduction de la phrase d'exemple. en $fromLanguage"
             }
           ]
         },
@@ -86,6 +88,22 @@ class ComplexWordsDetector extends GetxController {
     for ech word give 3 exemples with their translation
 
     Only return a string in the given format not a json file or idk. Do not include any extra explanation or formatting outside the format given. This will be used directly and parsed inside json.decode(yourResponse) in an flutter application.
+    
+    Your response will be passed in this code
+    final data = jsonDecode(response.body);
+
+        final content = data['choices'][0]['message']['content'];
+
+        try {
+          final detetctedWords = cleanJsonResponse(content);
+          final detectedWordsJson = json.decode(detetctedWords);
+          detectedWordsResponseModel = ResponseModel.fromJson(
+            detectedWordsJson,
+          );
+        } catch (e) {
+          print('Error decoding JSON array from GPT response: error:');
+          
+          so make sure you offer i well structure so it will be parsed without any error please
     ''';
 
       final response = await http.post(
@@ -108,10 +126,9 @@ class ComplexWordsDetector extends GetxController {
         }),
       );
 
-      print('Recieved Response from GPT...');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
         final content = data['choices'][0]['message']['content'];
 
         try {

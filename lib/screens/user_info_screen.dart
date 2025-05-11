@@ -127,7 +127,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             decoration: InputDecoration(
                               hintText: 'Select a language',
                               hintStyle: GoogleFonts.poppins(
-                                fontSize: 14,
+                                fontSize: 12,
                                 color: Colors.grey,
                               ),
                               border: OutlineInputBorder(
@@ -138,7 +138,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               fillColor: Colors.grey[100],
                             ),
                             items:
-                                ['English', 'Spanish', 'Arabic']
+                                ['French', 'Spanish', 'Arabic']
                                     .map(
                                       (lang) => DropdownMenuItem(
                                         value: lang,
@@ -171,7 +171,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             decoration: InputDecoration(
                               hintText: 'Select your level',
                               hintStyle: GoogleFonts.poppins(
-                                fontSize: 14,
+                                fontSize: 12,
                                 color: Colors.grey,
                               ),
                               border: OutlineInputBorder(
@@ -215,7 +215,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             decoration: InputDecoration(
                               hintText: 'Select your native language',
                               hintStyle: GoogleFonts.poppins(
-                                fontSize: 14,
+                                fontSize: 12,
                                 color: Colors.grey,
                               ),
                               border: OutlineInputBorder(
@@ -226,7 +226,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               fillColor: Colors.grey[100],
                             ),
                             items:
-                                ['English', 'Arabic', 'French']
+                                ['French', 'Spanish', 'Arabic']
                                     .map(
                                       (lang) => DropdownMenuItem(
                                         value: lang,
@@ -255,6 +255,17 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             width: constraints.maxWidth,
                             child: ElevatedButton.icon(
                               onPressed: () async {
+                                if (_selectedFromLanguage ==
+                                    _selectedToLanguage) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Please make sure to select two different languages.',
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
                                 if (_userNameController.text != '' &&
                                     _selectedToLanguage != '' &&
                                     _selectedLevel != '' &&

@@ -70,7 +70,7 @@ class DownloadYoutubeVideoService extends GetxController {
       isConvertingToTextInitial = false;
       isConvertingToText = true;
       update();
-      await Future.delayed(Duration(seconds: 10));
+      await Future.delayed(Duration(seconds: 30));
       print('Future done ...');
 
       final transcription = await fetchTranscriptionByID(transcribtionId);

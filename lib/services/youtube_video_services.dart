@@ -21,9 +21,10 @@ bool isYouTubeVideoLink(String link) {
 }
 
 String getLanguageCode(String language) {
+  print('lan code for $language');
   switch (language.toLowerCase()) {
-    case 'english':
-      return 'en';
+    case 'french':
+      return 'fr';
     case 'spanish':
       return 'es';
     case 'arabic':
