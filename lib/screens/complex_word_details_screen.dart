@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:youtube_downloader/main.dart';
-import 'package:youtube_downloader/models/response_model.dart';
-import 'package:youtube_downloader/screens/video_summary_screen.dart';
-import 'package:youtube_downloader/services/complex_words_detector.dart';
-import 'package:youtube_downloader/themes/app_themes.dart';
+import 'package:Transcripto/main.dart';
+import 'package:Transcripto/models/response_model.dart';
+import 'package:Transcripto/screens/video_summary_screen.dart';
+import 'package:Transcripto/services/complex_words_detector.dart';
+import 'package:Transcripto/themes/app_themes.dart';
 
 class ComplexWordDetailsScreen extends StatelessWidget {
   const ComplexWordDetailsScreen({super.key});

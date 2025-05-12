@@ -1,4 +1,4 @@
-name: youtube_downloader
+name: Transcripto
 description: "A new Flutter project."
 publish_to: "none"
 version: 0.1.0
@@ -10,6 +10,7 @@ dependencies:
   assemblyai_flutter_sdk: ^0.0.10
   flutter:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.3
   flutter_spinkit: ^5.2.1
   font_awesome_flutter: ^10.8.0
   get: ^4.7.2
@@ -28,3 +29,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo/transcripto.png
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/transcripto.png"
+  adaptive_icon_background: "#FFFFFF" # Optional: Background color for Android adaptive icons
+  min_sdk_android: 21 # Optional: Minimum Android SDK version

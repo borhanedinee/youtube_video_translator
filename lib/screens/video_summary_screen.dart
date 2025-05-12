@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:youtube_downloader/main.dart';
-import 'package:youtube_downloader/services/complex_words_detector.dart';
-import 'package:youtube_downloader/themes/app_themes.dart';
+import 'package:Transcripto/main.dart';
+import 'package:Transcripto/services/complex_words_detector.dart';
+import 'package:Transcripto/themes/app_themes.dart';
 
 class VideoSummarScreen extends StatelessWidget {
   const VideoSummarScreen({super.key});

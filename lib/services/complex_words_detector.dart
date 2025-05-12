@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:youtube_downloader/constants/api_keys.dart';
-import 'package:youtube_downloader/models/response_model.dart';
+import 'package:Transcripto/constants/api_keys.dart';
+import 'package:Transcripto/models/response_model.dart';
 
 class ComplexWordsDetector extends GetxController {
   // DownloadYoutubeVideoService transcriptor;

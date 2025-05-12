@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:youtube_downloader/main.dart';
-import 'package:youtube_downloader/models/user_model.dart';
+import 'package:Transcripto/main.dart';
+import 'package:Transcripto/models/user_model.dart';
 
 class UserInfoService extends GetxController {
   bool isSavingUser = false;

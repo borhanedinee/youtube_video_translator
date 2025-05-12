@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:youtube_downloader/main.dart';
-import 'package:youtube_downloader/screens/home_screen.dart';
-import 'package:youtube_downloader/services/user_info_service.dart';
-import 'package:youtube_downloader/themes/app_themes.dart';
+import 'package:Transcripto/main.dart';
+import 'package:Transcripto/screens/home_screen.dart';
+import 'package:Transcripto/services/user_info_service.dart';
+import 'package:Transcripto/themes/app_themes.dart';
 
 class UserInfoScreen extends StatefulWidget {
   const UserInfoScreen({super.key});
