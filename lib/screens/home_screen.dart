@@ -1,4 +1,5 @@
 import 'package:Transcripto/services/complex_words_detector.dart';
+import 'package:Transcripto/utils/check_connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,7 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onAnalyzePressed() async {
-    print('analyse');
+    if (!(await isConnected())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please check your Internet Connection then repeat.'),
+        ),
+      );
+      return;
+    }
     if (_youtubeController.text.isNotEmpty &&
         isYouTubeVideoLink(_youtubeController.text)) {
       final videoID = getYouTubeVideoId(_youtubeController.text);
