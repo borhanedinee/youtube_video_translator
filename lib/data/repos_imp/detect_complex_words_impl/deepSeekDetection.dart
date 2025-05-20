@@ -16,12 +16,12 @@ class DeepseekDetection implements DetectComplexWordsRepo {
 
   // Configuration for word count ranges per CEFR level
   static const Map<String, Map<String, int>> _levelWordRanges = {
-    'A1': {'minWords': 35, 'maxWords': 45},
-    'A2': {'minWords': 35, 'maxWords': 45},
-    'B1': {'minWords': 25, 'maxWords': 35},
-    'B2': {'minWords': 20, 'maxWords': 30},
-    'C1': {'minWords': 10, 'maxWords': 20},
-    'C2': {'minWords': 5, 'maxWords': 8},
+    'A1': {'minWords': 20, 'maxWords': 25},
+    'A2': {'minWords': 18, 'maxWords': 23},
+    'B1': {'minWords': 12, 'maxWords': 18},
+    'B2': {'minWords': 8, 'maxWords': 12},
+    'C1': {'minWords': 5, 'maxWords': 10},
+    'C2': {'minWords': 2, 'maxWords': 5},
   };
 
   @override
@@ -54,8 +54,8 @@ class DeepseekDetection implements DetectComplexWordsRepo {
       final levelUpper = level.toUpperCase();
       final wordRange =
           _levelWordRanges[levelUpper] ?? {'minWords': 25, 'maxWords': 35};
-      final minWords = wordRange['minWords']! * (uniqueWords / 200);
-      final maxWords = wordRange['maxWords']! * (uniqueWords / 200);
+      final minWords = wordRange['minWords']! * (uniqueWords / 400);
+      final maxWords = wordRange['maxWords']! * (uniqueWords / 400);
 
       // Calculate target word count (random within range, capped by unique words)
       final targetWordCount =
@@ -69,7 +69,8 @@ class DeepseekDetection implements DetectComplexWordsRepo {
       final prompt = _buildPrompt(
         transcript: transcript,
         wordsNumber: wordsNumber,
-        targetWordCount: targetWordCount.toInt(),
+        targetWordCount:
+            targetWordCount.toInt() > 50 ? 50 : targetWordCount.toInt(),
         level: levelUpper,
         toLanguage: toLanguage,
         fromLanguage: fromLanguage,
@@ -95,7 +96,7 @@ class DeepseekDetection implements DetectComplexWordsRepo {
           ],
           'temperature': 0.1,
           'max_tokens':
-              8000, // Set the maximum number of tokens for the response
+              8192, // Set the maximum number of tokens for the response
         }),
       );
 
@@ -231,14 +232,15 @@ You are an intelligent assistant that helps language learners expand their vocab
     int endIndex = -1;
     bool inString = false;
     String? lastUnterminatedString;
+    int lastValidCommaIndex = -1;
 
     for (int i = 0; i < cleaned.length; i++) {
       if (cleaned[i] == '"' && (i == 0 || cleaned[i - 1] != '\\')) {
         inString = !inString;
-        if (!inString) {
-          lastUnterminatedString = null;
-        } else {
+        if (inString) {
           lastUnterminatedString = cleaned.substring(i);
+        } else {
+          lastUnterminatedString = null;
         }
       } else if (!inString) {
         if (cleaned[i] == '{') {
@@ -256,12 +258,16 @@ You are an intelligent assistant that helps language learners expand their vocab
           bracketCount++;
         } else if (cleaned[i] == ']') {
           bracketCount--;
+        } else if (cleaned[i] == ',' && braceCount == 1 && bracketCount == 1) {
+          lastValidCommaIndex =
+              i; // Track last valid comma in complexWordsWithExamples
         }
       }
     }
 
     _logger.d(
-      'Brace matching: startIndex=$startIndex, endIndex=$endIndex, braceCount=$braceCount, bracketCount=$bracketCount, inString=$inString',
+      'Brace matching: startIndex=$startIndex, endIndex=$endIndex, braceCount=$braceCount, '
+      'bracketCount=$bracketCount, inString=$inString, lastValidCommaIndex=$lastValidCommaIndex',
     );
 
     if (startIndex == -1) {
@@ -273,11 +279,34 @@ You are an intelligent assistant that helps language learners expand their vocab
       _logger.w('Incomplete JSON detected, attempting to repair');
       cleaned = cleaned.substring(startIndex);
 
-      // Fix unterminated string if present
+      // Step 4: Handle truncation scenarios
+      // Case 1: Ends in unterminated string
       if (inString && lastUnterminatedString != null) {
         _logger.d('Fixing unterminated string: $lastUnterminatedString');
         cleaned =
-            '${cleaned.substring(0, cleaned.length - lastUnterminatedString.length)}"';
+            cleaned.substring(
+              0,
+              cleaned.length - lastUnterminatedString.length,
+            ) +
+            '"';
+      }
+
+      // Case 2: Ends at a key (e.g., "sentence": or "word":)
+      if (cleaned.trim().endsWith(':')) {
+        _logger.d('Response ends at a key, removing incomplete key-value pair');
+        int lastColonIndex = cleaned.lastIndexOf(':');
+        int lastCommaBeforeColon = cleaned.lastIndexOf(',', lastColonIndex);
+        if (lastCommaBeforeColon != -1) {
+          cleaned = cleaned.substring(0, lastCommaBeforeColon);
+        } else {
+          cleaned = cleaned.substring(0, cleaned.lastIndexOf('{'));
+        }
+      }
+
+      // Case 3: Ends mid-object or mid-array
+      if (lastValidCommaIndex != -1 && lastValidCommaIndex > startIndex) {
+        _logger.d('Removing incomplete array entry after last valid comma');
+        cleaned = cleaned.substring(0, lastValidCommaIndex);
       }
 
       // Append closing brackets and braces
@@ -292,7 +321,7 @@ You are an intelligent assistant that helps language learners expand their vocab
       cleaned = cleaned.substring(startIndex, endIndex + 1);
     }
 
-    // Step 4: Remove trailing commas and excessive whitespace
+    // Step 5: Remove trailing commas and excessive whitespace
     cleaned =
         cleaned
             .replaceAll(RegExp(r',\s*([}\]])'), r'\1')
@@ -301,9 +330,36 @@ You are an intelligent assistant that helps language learners expand their vocab
 
     _logger.d('After cleaning: $cleaned');
 
-    // Step 5: Verify that the cleaned content is parseable JSON
+    // Step 6: Ensure required fields exist
     try {
-      jsonDecode(cleaned);
+      final json = jsonDecode(cleaned);
+      if (json is! Map<String, dynamic> ||
+          !json.containsKey('contextOfText') ||
+          !json.containsKey('contextOfTextTranslated') ||
+          !json.containsKey('complexWordsWithExamples') ||
+          json['complexWordsWithExamples'] is! List) {
+        _logger.e('JSON does not match expected structure: $cleaned');
+        throw DeepseekResponseValidationException(
+          'JSON does not match expected structure',
+        );
+      }
+
+      // Validate complexWordsWithExamples entries
+      final words = json['complexWordsWithExamples'] as List;
+      for (var word in words) {
+        if (word is! Map<String, dynamic> ||
+            !word.containsKey('word') ||
+            !word.containsKey('wordType') ||
+            !word.containsKey('wordTranslated') ||
+            !word.containsKey('wordExplanation') ||
+            !word.containsKey('examples') ||
+            (word['examples'] as List).length != 3) {
+          _logger.e('Invalid word entry: $word');
+          throw DeepseekResponseValidationException(
+            'Invalid word entry in complexWordsWithExamples',
+          );
+        }
+      }
     } catch (e) {
       _logger.e('Cleaned content is not valid JSON: $cleaned, Error: $e');
       throw DeepseekResponseValidationException(
