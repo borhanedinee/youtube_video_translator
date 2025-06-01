@@ -50,20 +50,34 @@ class _HomeScreenState extends State<HomeScreen> {
         );
         return;
       }
+      // final videoID = getYouTubeVideoId(_youtubeController.text);
       final videoID = getYouTubeVideoId(_youtubeController.text);
       final langCode = getLanguageCode(currentUser!.toLang.toLowerCase());
       final langToLearn = currentUser!.toLang.toLowerCase();
       final nativeLang = currentUser!.fromLang.toLowerCase();
       final level = currentUser!.level.toLowerCase();
 
+      bool success;
+
       // process
-      bool success = await processVideoController.processVideo(
-        videoID,
-        langCode,
-        langToLearn,
-        nativeLang,
-        level,
-      );
+      if (videoID != '') {
+        success = await processVideoController.processVideo(
+          videoID,
+          langCode,
+          langToLearn,
+          nativeLang,
+          level,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not extract YouTube video ID. Please make sure the link is valid.',
+            ),
+          ),
+        );
+        return;
+      }
 
       if (success) {
         Navigator.of(context).push(
