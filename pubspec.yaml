@@ -19,7 +19,7 @@ dependencies:
   google_fonts: ^6.2.1
   http: ^1.4.0
   just_audio: ^0.10.2
-  logger: ^2.5.0
+  logger: ^2.6.2
   path_provider: ^2.1.5
   permission_handler: ^12.0.0+1
   shared_preferences: ^2.5.3
