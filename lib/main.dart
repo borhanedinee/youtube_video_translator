@@ -11,6 +11,7 @@ import 'package:Transcripto/presentation/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:Transcripto/domain/models/user_model.dart';
 import 'package:Transcripto/presentation/screens/user_info_screen.dart';
@@ -30,6 +31,8 @@ void main() async {
 
 late Size size;
 UserModel? currentUser;
+
+Logger logger = Logger(printer: PrettyPrinter());
 
 class MyApp extends StatelessWidget {
   @override

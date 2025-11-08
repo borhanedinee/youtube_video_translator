@@ -1,3 +1,4 @@
+import 'package:Transcripto/helpers/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,11 +21,41 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   void initState() {
-    _usernameController.text = currentUser!.username;
-    _selectedFromLanguage = currentUser!.fromLang;
-    _selectedToLanguage = currentUser!.toLang;
-    _selectedLevel = currentUser!.level;
     super.initState();
+    // Load user data after first frame so context and navigation are ready.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadUserData();
+    });
+  }
+
+  Future<void> _loadUserData() async {
+    final languagePreferences =
+        await SharedPreferencesHelper.getUserLanguages();
+    final fromLang =
+        languagePreferences['fromLanguage'] ?? currentUser!.fromLang;
+    final toLang = languagePreferences['toLanguage'] ?? currentUser!.toLang;
+    logger.d('Loaded fromLang: $fromLang, toLang: $toLang');
+    // Update state so UI reflects the loaded values immediately.
+    if (!mounted) return;
+    setState(() {
+      _usernameController.text = currentUser!.username;
+      // prefer stored prefs if available, otherwise use currentUser values
+      _selectedFromLanguage = (fromLang.isNotEmpty
+              ? (fromLang.capitalizeFirst ?? fromLang)
+              : (currentUser!.fromLang.capitalizeFirst ?? currentUser!.fromLang));
+      _selectedToLanguage = (toLang.isNotEmpty
+              ? (toLang.capitalizeFirst ?? toLang)
+              : (currentUser!.toLang.capitalizeFirst ?? currentUser!.toLang));
+      _selectedLevel = (currentUser!.level.isNotEmpty
+              ? (currentUser!.level.capitalizeFirst ?? currentUser!.level)
+              : '');
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -118,7 +149,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedToLanguage.capitalizeFirst,
+                                  // if no language selected, value must be null to avoid Dropdown assertion
+                                  value:
+                                      _selectedToLanguage.isEmpty
+                                          ? null
+                                          : _selectedToLanguage.capitalizeFirst,
                                   decoration: InputDecoration(
                                     hintText: 'Select a language',
                                     hintStyle: GoogleFonts.poppins(
@@ -147,8 +182,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           )
                                           .toList(),
                                   onChanged: (value) {
-                                    if (value != '') {
-                                      _selectedToLanguage = value!;
+                                    // update state so the selected value is reflected in the UI
+                                    if (value != null && value != '') {
+                                      setState(() {
+                                        _selectedToLanguage = value;
+                                      });
                                     }
                                   },
                                 ),
@@ -163,7 +201,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedLevel.capitalizeFirst,
+                                  // if no level selected, use null so Dropdown doesn't assert
+                                  value:
+                                      _selectedLevel.isEmpty
+                                          ? null
+                                          : _selectedLevel.capitalizeFirst,
                                   decoration: InputDecoration(
                                     hintText: 'Select your level',
                                     hintStyle: GoogleFonts.poppins(
@@ -192,8 +234,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           )
                                           .toList(),
                                   onChanged: (value) {
-                                    if (value != '') {
-                                      _selectedLevel = value!;
+                                    if (value != null && value != '') {
+                                      setState(() {
+                                        _selectedLevel = value;
+                                      });
                                     }
                                   },
                                 ),
@@ -208,7 +252,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedFromLanguage.capitalizeFirst,
+                                  // if no native language selected, make value null
+                                  value:
+                                      _selectedFromLanguage.isEmpty
+                                          ? null
+                                          : _selectedFromLanguage
+                                              .capitalizeFirst,
                                   decoration: InputDecoration(
                                     hintText: 'Select your native language',
                                     hintStyle: GoogleFonts.poppins(
@@ -237,8 +286,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           )
                                           .toList(),
                                   onChanged: (value) {
-                                    if (value != '') {
-                                      _selectedFromLanguage = value!;
+                                    if (value != null && value != '') {
+                                      setState(() {
+                                        _selectedFromLanguage = value;
+                                      });
                                     }
                                   },
                                 ),
@@ -271,15 +322,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           _selectedFromLanguage != '') {
                                         final userName =
                                             _usernameController.text;
+
+                                        // save languages preferences
+                                        Get.find<UserInfoService>()
+                                                .languageFrom =
+                                            _selectedFromLanguage;
+                                        Get.find<UserInfoService>()
+                                                .languageToLearn =
+                                            _selectedToLanguage;
                                         final status =
                                             await Get.find<UserInfoService>()
                                                 .saveUserInfo(
                                                   userName,
-                                                  _selectedToLanguage,
                                                   _selectedLevel,
-                                                  _selectedFromLanguage,
                                                 );
                                         if (status) {
+                                          // save changes to share preferences
+                                          await SharedPreferencesHelper.saveUserLanguages(
+                                            fromLanguage: _selectedFromLanguage,
+                                            toLanguage: _selectedToLanguage,
+                                          );
                                           Navigator.of(context).pop();
                                         } else {
                                           ScaffoldMessenger.of(

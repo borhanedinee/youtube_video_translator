@@ -30,4 +30,19 @@ class UserModel {
       level: map['level'] ?? '',
     );
   }
+
+  // copy with method for updating fields
+  UserModel copyWith({
+    String? username,
+    String? toLang,
+    String? fromLang,
+    String? level,
+  }) {
+    return UserModel(
+      username: username ?? this.username,
+      toLang: toLang ?? this.toLang,
+      fromLang: fromLang ?? this.fromLang,
+      level: level ?? this.level,
+    );
+  }
 }

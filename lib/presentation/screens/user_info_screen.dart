@@ -1,3 +1,4 @@
+import 'package:Transcripto/helpers/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -125,6 +126,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
+                              // if no selection, value should be null to avoid assertion
+                              value: _selectedToLanguage.isEmpty
+                                  ? null
+                                  : _selectedToLanguage.capitalizeFirst,
                               decoration: InputDecoration(
                                 hintText: 'Select a language',
                                 hintStyle: GoogleFonts.poppins(
@@ -153,8 +158,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                       )
                                       .toList(),
                               onChanged: (value) {
-                                if (value != '') {
-                                  _selectedToLanguage = value!.toLowerCase();
+                                if (value != null && value != '') {
+                                  setState(() {
+                                    _selectedToLanguage = value.toLowerCase();
+                                  });
                                 }
                               },
                             ),
@@ -169,6 +176,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
+                              value: _selectedLevel.isEmpty
+                                  ? null
+                                  : _selectedLevel.capitalizeFirst,
                               decoration: InputDecoration(
                                 hintText: 'Select your level',
                                 hintStyle: GoogleFonts.poppins(
@@ -197,8 +207,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                       )
                                       .toList(),
                               onChanged: (value) {
-                                if (value != '') {
-                                  _selectedLevel = value!.toLowerCase();
+                                if (value != null && value != '') {
+                                  setState(() {
+                                    _selectedLevel = value.toLowerCase();
+                                  });
                                 }
                               },
                             ),
@@ -213,6 +225,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
+                              value: _selectedFromLanguage.isEmpty
+                                  ? null
+                                  : _selectedFromLanguage.capitalizeFirst,
                               decoration: InputDecoration(
                                 hintText: 'Select your native language',
                                 hintStyle: GoogleFonts.poppins(
@@ -241,8 +256,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                       )
                                       .toList(),
                               onChanged: (value) {
-                                if (value != '') {
-                                  _selectedFromLanguage = value!.toLowerCase();
+                                if (value != null && value != '') {
+                                  setState(() {
+                                    _selectedFromLanguage = value.toLowerCase();
+                                  });
                                 }
                               },
                             ),
@@ -272,15 +289,23 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                       _selectedLevel != '' &&
                                       _selectedFromLanguage != '') {
                                     final userName = _userNameController.text;
+                                    // save languages preferences
+                                    Get.find<UserInfoService>().languageFrom =
+                                        _selectedFromLanguage;
+                                    Get.find<UserInfoService>()
+                                        .languageToLearn = _selectedToLanguage;
                                     final status =
                                         await Get.find<UserInfoService>()
                                             .saveUserInfo(
                                               userName,
-                                              _selectedToLanguage,
                                               _selectedLevel,
-                                              _selectedFromLanguage,
                                             );
                                     if (status) {
+                                      await SharedPreferencesHelper.saveUserLanguages(
+                                        fromLanguage: _selectedFromLanguage,
+                                        toLanguage: _selectedToLanguage,
+                                      );
+
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
                                           builder: (context) => HomeScreen(),
